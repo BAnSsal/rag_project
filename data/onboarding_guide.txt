@@ -1,0 +1,26 @@
+New Employee Onboarding Guide (Sample)
+
+Week 1: Setup and Orientation
+On your first day, IT will provision your laptop and accounts before you
+arrive. You will meet with your manager for a 1:1 to review your 30-60-90
+day goals, and complete mandatory compliance training covering security,
+data privacy, and code of conduct. All new hires must finish compliance
+training within their first five business days.
+
+Week 2: Team Integration
+You will be paired with an onboarding buddy, an experienced teammate who
+answers day-to-day questions for your first 90 days. You will also get
+read access to the internal documentation wiki and be added to your team's
+project boards.
+
+Equipment and Software
+New hires receive a laptop, monitor, and any specialized hardware relevant
+to their role. Standard software includes the company's chat tool, email,
+calendar, and the internal RAG assistant used for searching company
+documentation. IT support tickets can be filed through the helpdesk portal
+and are typically resolved within one business day.
+
+Probation Period
+All new employees have a 90-day probationary period during which either
+the employee or the company may end employment without notice. A formal
+performance review is conducted at the end of the probation period.
