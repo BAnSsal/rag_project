@@ -30,16 +30,16 @@ rag_project/
 ├── data/                  # sample documents to index (swap in your own!)
 ├── src/rag/
 │   ├── config.py          # environment-backed settings
-│   ├── providers.py       # embeddings/LLM factory (OpenAI, or offline fake)
+│   ├── providers.py       # OpenAI embeddings/chat factory
 │   ├── ingest.py          # load → split → embed → save FAISS index
 │   ├── chain.py           # LCEL retrieval-augmented generation chain
 │   └── cli.py             # `ingest` and `ask` commands
-└── tests/                 # pytest suite (runs fully offline)
+└── tests/                 # pytest suite (uses local test doubles, no API key needed)
 ```
 
 ## Setup
 
-Requires Python 3.10+.
+Requires Python 3.10+ and an [OpenAI API key](https://platform.openai.com/api-keys).
 
 ```bash
 python3 -m venv .venv
@@ -47,22 +47,23 @@ source .venv/bin/activate
 pip install -e .
 ```
 
-Copy `.env.example` to `.env` and, optionally, add your OpenAI API key:
+Copy `.env.example` to `.env` and add your OpenAI API key:
 
 ```bash
 cp .env.example .env
+# then edit .env and set OPENAI_API_KEY=sk-...
 ```
 
-- **With `OPENAI_API_KEY` set:** real OpenAI embeddings (`text-embedding-3-small`
-  by default) and chat completions (`gpt-4o-mini` by default) are used.
-- **Without a key:** the project automatically falls back to a deterministic,
-  offline provider — a hashed "fake" embedding plus a keyword-based extractive
-  answerer — so ingestion, retrieval, and the CLI all still work end-to-end
-  with no network access. This keeps the project runnable out of the box and
-  makes the test suite fast and reliable. Answers in this mode are simple
-  sentence extracts rather than fluent generated text, and retrieval quality
-  is lower since the fake embedding isn't semantically meaningful — add a
-  real API key for good answers.
+> **Never paste a real API key into a chat prompt, commit it to git, or
+> hardcode it in source.** Keep it only in your local `.env` file (already
+> git-ignored) or in your deployment platform's secret manager. If a key is
+> ever exposed, revoke it immediately in the OpenAI dashboard and generate a
+> new one.
+
+This project always calls the real OpenAI API — embeddings
+(`text-embedding-3-small` by default) for indexing/retrieval and chat
+completions (`gpt-4o-mini` by default) for answering. `ingest` and `ask`
+fail fast with a clear error if `OPENAI_API_KEY` is missing.
 
 ## Usage
 
@@ -97,7 +98,7 @@ All settings are read from the environment (see `.env.example`):
 
 | Variable                  | Default                   | Description                              |
 | -------------------------- | -------------------------- | ----------------------------------------- |
-| `OPENAI_API_KEY`           | *(unset)*                  | Enables real OpenAI embeddings/chat       |
+| `OPENAI_API_KEY`           | *(required)*                | Your OpenAI API key                      |
 | `OPENAI_CHAT_MODEL`        | `gpt-4o-mini`              | Chat model used for answering             |
 | `OPENAI_EMBEDDING_MODEL`   | `text-embedding-3-small`   | Embedding model used for indexing/queries |
 | `RAG_DATA_DIR`             | `data`                     | Folder of documents to index              |
@@ -108,8 +109,9 @@ All settings are read from the environment (see `.env.example`):
 
 ## Tests
 
-The test suite forces the offline fake provider, so it runs fully
-deterministically with no network calls or API key required:
+The application itself always talks to real OpenAI, but the test suite
+injects local, deterministic test doubles in place of the network calls
+(see `tests/fakes.py`), so it runs fully offline with no API key or cost:
 
 ```bash
 pytest
