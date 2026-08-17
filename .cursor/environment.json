@@ -1,0 +1,4 @@
+{
+  "name": "rag_project",
+  "install": "bash .cursor/install.sh"
+}
