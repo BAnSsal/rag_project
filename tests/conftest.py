@@ -1,7 +1,8 @@
 """Shared pytest fixtures.
 
-All tests force the offline fake provider by clearing OPENAI_API_KEY, so the
-suite runs deterministically with no network access.
+The application always uses real OpenAI (see `rag/providers.py`), but the
+test suite injects deterministic test doubles (`tests/fakes.py`) in place of
+the real network calls so it stays hermetic, fast, and free to run.
 """
 
 from __future__ import annotations
@@ -12,11 +13,15 @@ from pathlib import Path
 import pytest
 
 from rag.config import Settings
+from tests.fakes import FakeChatModel, FakeEmbeddings
 
 
 @pytest.fixture(autouse=True)
-def no_network(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+def fake_providers(monkeypatch: pytest.MonkeyPatch) -> None:
+    embeddings = FakeEmbeddings()
+    llm = FakeChatModel()
+    monkeypatch.setattr("rag.ingest.get_embeddings", lambda settings: embeddings)
+    monkeypatch.setattr("rag.chain.get_llm", lambda settings: llm)
 
 
 @pytest.fixture
@@ -39,7 +44,7 @@ def sample_data_dir(tmp_path: Path) -> Path:
 def test_settings(tmp_path: Path, sample_data_dir: Path) -> Settings:
     storage_dir = tmp_path / "storage"
     return Settings(
-        openai_api_key=None,
+        openai_api_key="sk-test-placeholder-not-real",
         openai_chat_model="gpt-4o-mini",
         openai_embedding_model="text-embedding-3-small",
         data_dir=str(sample_data_dir),

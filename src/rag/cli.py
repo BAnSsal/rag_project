@@ -19,10 +19,11 @@ def cmd_ingest(_: argparse.Namespace) -> int:
     settings = get_settings()
     if not settings.has_openai_key:
         print(
-            "Note: OPENAI_API_KEY is not set. Using the offline fake embedding "
-            "provider (deterministic, no network calls).",
+            "Error: OPENAI_API_KEY is not set. Add it to your .env file "
+            "(see .env.example) before running ingestion.",
             file=sys.stderr,
         )
+        return 1
     print(f"Loading documents from '{settings.data_dir}'...")
     build_index(settings)
     print(f"Index built and saved to '{settings.storage_dir}'.")
@@ -33,10 +34,11 @@ def cmd_ask(args: argparse.Namespace) -> int:
     settings = get_settings()
     if not settings.has_openai_key:
         print(
-            "Note: OPENAI_API_KEY is not set. Using the offline fake chat "
-            "provider (deterministic, extractive answers only).",
+            "Error: OPENAI_API_KEY is not set. Add it to your .env file "
+            "(see .env.example) before asking questions.",
             file=sys.stderr,
         )
+        return 1
     try:
         vector_store = load_index(settings)
     except FileNotFoundError as exc:

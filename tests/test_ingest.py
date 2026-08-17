@@ -36,10 +36,10 @@ def test_build_and_load_index_roundtrip(test_settings: Settings) -> None:
 
     vector_store = load_index(test_settings)
 
-    # The offline fake embedding is deterministic-but-not-semantic (it hashes
-    # text to a pseudo-random vector), so querying with the *exact* text of a
-    # known chunk is the only reliable way to assert retrieval correctness
-    # without a real embedding model.
+    # The test double is deterministic-but-not-semantic (it hashes text to a
+    # pseudo-random vector), so querying with the *exact* text of a known
+    # chunk is the only reliable way to assert retrieval correctness without
+    # calling a real embedding model.
     docs = load_documents(str(test_settings.data_dir))
     chunks = split_documents(docs, test_settings.chunk_size, test_settings.chunk_overlap)
     refund_chunk = next(c for c in chunks if "refund" in c.page_content.lower())
